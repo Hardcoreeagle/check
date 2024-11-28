@@ -41,32 +41,53 @@ def index():
 
 
 @app.route("/submit", methods=["POST"])
-# When new transaction is created it is processed and added to transaction
 def submit():
     start = timer()
     user = request.form["user"]
     up_file = request.files["v_file"]
     
-    #save the uploaded file in destination
-    up_file.save(os.path.join("app/static/Uploads/",secure_filename(up_file.filename)))
-    #add the file to the list to create a download link
-    files[up_file.filename] = os.path.join(app.root_path, "static" , "Uploads", up_file.filename)
-    #determines the size of the file uploaded in bytes 
-    file_states = os.stat(files[up_file.filename]).st_size 
-    #create a transaction object
+    # Ensure the upload directory exists
+    upload_folder = os.path.join(app.root_path, 'static', 'Uploads')
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+    
+    # Check if the file is in the request
+    if 'v_file' not in request.files:
+        print("No file part")
+        return redirect(request.url)
+
+    if up_file.filename == '':
+        print("No selected file")
+        return redirect(request.url)
+    
+    print(f"Uploading file: {up_file.filename}")
+    
+    # Save the uploaded file
+    file_path = os.path.join(upload_folder, secure_filename(up_file.filename))
+    up_file.save(file_path)
+
+    # Add the file to the list to create a download link
+    files[up_file.filename] = file_path
+
+    # Determine the size of the file uploaded in bytes 
+    file_size = os.stat(file_path).st_size
+
+    # Create a transaction object
     post_object = {
-        "user": user, #user name
-        "v_file" : up_file.filename, #filename
-        "file_data" : str(up_file.stream.read()), #file data
-        "file_size" : file_states   #file size
+        "user": user,  # User name
+        "v_file": up_file.filename,  # Filename
+        "file_data": str(up_file.stream.read()),  # File data
+        "file_size": file_size  # File size
     }
-   
+
     # Submit a new transaction
-    address = "{0}/new_transaction".format(ADDR)
+    address = f"{ADDR}/new_transaction"
     requests.post(address, json=post_object)
+    
     end = timer()
-    print(end - start)
+    print(f"Time taken: {end - start} seconds")
     return redirect("/")
+
 
 
 
