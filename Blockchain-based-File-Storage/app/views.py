@@ -15,7 +15,7 @@ UPLOAD_FOLDER = "app/static/Uploads"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # store address (change to use environment variable for Render deployment)
-ADDR = os.environ.get("ADDR", "http://127.0.0.1:8800")  # Default to 127.0.0.1 if not set
+ADDR = os.environ.get("ADDR", "https://my-blockchain-backend.onrender.com")  # Default to 127.0.0.1 if not set
 
 # create a list of requests that peers have sent to upload files
 def get_tx_req():
