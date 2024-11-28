@@ -41,37 +41,29 @@ def index():
 
 
 @app.route("/submit", methods=["POST"])
+# When new transaction is created it is processed and added to transaction
 def submit():
     start = timer()
     user = request.form["user"]
     up_file = request.files["v_file"]
     
-    # Ensure the uploads directory exists
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-
-    # Save the uploaded file in the correct directory
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(up_file.filename))
-    up_file.save(file_path)
-
-    # Add the file to the list to create a download link
-    files[up_file.filename] = file_path
-
-    # Determine the size of the file uploaded in bytes 
-    file_size = os.stat(file_path).st_size
-
-    # Create a transaction object
+    #save the uploaded file in destination
+    up_file.save(os.path.join("app/static/Uploads/",secure_filename(up_file.filename)))
+    #add the file to the list to create a download link
+    files[up_file.filename] = os.path.join(app.root_path, "static" , "Uploads", up_file.filename)
+    #determines the size of the file uploaded in bytes 
+    file_states = os.stat(files[up_file.filename]).st_size 
+    #create a transaction object
     post_object = {
-        "user": user,  # User name
-        "v_file": up_file.filename,  # Filename
-        "file_data": str(up_file.stream.read()),  # File data
-        "file_size": file_size  # File size
+        "user": user, #user name
+        "v_file" : up_file.filename, #filename
+        "file_data" : str(up_file.stream.read()), #file data
+        "file_size" : file_states   #file size
     }
-
+   
     # Submit a new transaction
-    address = f"{ADDR}/new_transaction"
+    address = "{0}/new_transaction".format(ADDR)
     requests.post(address, json=post_object)
-    
     end = timer()
     print(end - start)
     return redirect("/")
