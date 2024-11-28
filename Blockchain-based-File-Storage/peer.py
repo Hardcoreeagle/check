@@ -69,4 +69,4 @@ def validate_and_add_block():
         return "The Block was discarded by the node.", 400
     return "The block was added to the chain.", 201
 #run the app
-app.run(port=8800, debug=True)
+app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8800)), debug=True)
